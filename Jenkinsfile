@@ -6,7 +6,7 @@ pipeline {
        dockerImage = ''
    }
    stages {
-       stage('Test') {
+       stage('Testing') {
            steps {
                sh 'whoami'
            }
