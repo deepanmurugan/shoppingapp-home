@@ -6,6 +6,11 @@ pipeline {
        dockerImage = ''
    }
    stages {
+       stage('Test') {
+           steps {
+               sh 'whoami'
+           }
+       }
        stage('Build') {
             steps {
                 script {
