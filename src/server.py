@@ -3,4 +3,5 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Hello World.....!"
+    ip_address = flask.request.remote_addr
+    return "Requester IP: " + ip_address
