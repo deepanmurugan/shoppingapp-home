@@ -6,6 +6,11 @@ pipeline {
        dockerImage = ''
    }
    stages {
+        stage('Cloning our Git') { 
+            steps { 
+                git 'https://github.com/deepanmurugan/CICD-DEMO.git' 
+            }
+        } 
        stage('Build') {
             steps {
                 script {
