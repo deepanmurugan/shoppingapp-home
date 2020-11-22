@@ -1,47 +1,49 @@
+@Library('jenkins-shared-library') _
+
 pipeline {
    agent any
    environment {
        app = 'shoppingapp'
        service = 'shoppingapp-home'
-       registry = 'deepanmurugan/shoppingapp-home'
        registryCredential = 'dockerhub'
        dockerImage = ''
+       imageid = "deepanmurugan/shoppingapp-mens:$BUILD_NUMBER"
    }
    stages {
        stage('Build') {
             steps {
-                script {
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER" 
-                }
-            } 
+		script {
+			dockerImage = dockerbuild(imageid)
+		}
+	    } 
         }
        stage('Test') {
            steps {                
-               sh 'echo "Testing the docker built image"'
+		testcase()
            }
        }
        stage('Publish') {
            steps{
                script {
-                     docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push()
+			imagepush(imageid)
                    }
-               }
            }
        }
        stage('Pull Playbook Repo') {
         steps {
-          dir('/tmp/ansible-playbooks/') {
-          checkout poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false, timeout: 10]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'github_repo', url: 'https://github.com/deepanmurugan/Ansible_Playbook.git']]]
-          }
-          }
+		dir('/tmp/ansible-playbooks/') {
+			gitcheckout(
+				branch: "master",
+				repoUrl: "https://github.com/deepanmurugan/Ansible_Playbook.git"
+			)
+		}
+	}
        }
        stage ('Deploy') {
            steps {
            dir('/tmp/ansible-playbooks/') {
                script{
-                   def image_id = registry + ":$BUILD_NUMBER"
-                   sh "ansible-playbook deploy_k8s.yml --extra-vars \"image_id=${image_id} app_name=${app} service_name=${service}\""
+			deploytok8s(imageid,app,service)
                }
            }
            }
