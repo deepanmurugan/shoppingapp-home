@@ -4,4 +4,4 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return socket.gethostname() 
+    return "Welcome to shoppingapp - Home %s" % socket.gethostname() 
